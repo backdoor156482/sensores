@@ -1,0 +1,49 @@
+#include <DHT.h>
+// Definimos el pin digital donde se conecta el sensor
+#define DHTPIN 2
+// Dependiendo del tipo de sensor
+#define DHTTYPE DHT11
+//pin del boton
+const int buttonpin = 4;
+DHT dht(DHTPIN, DHTTYPE);
+  int buttonstate = 0;
+void setup() {
+  // put your setup code here, to run once:
+  Serial.begin(9600);
+  pinMode(buttonpin, INPUT);
+  dht.begin();
+}
+void loop() {
+  buttonstate = digitalRead(buttonpin);
+  if(buttonstate == HIGH) {
+    float h = dht.readHumidity();
+    float t = dht.readTemperature();
+    // Leemos la temperatura en grados Fahrenheit
+    float f = dht.readTemperature(true);
+    if (isnan(h) || isnan(t) || isnan(f)) {
+      Serial.println("Error obteniendo los datos del sensor DHT11");
+      return;
+    }
+    // Calcular el índice de calor en Fahrenheit
+    float hif = dht.computeHeatIndex(f, h);
+    // Calcular el índice de calor en grados centígrados
+    float hic = dht.computeHeatIndex(t, h, false);
+    Serial.print("Humedad: ");
+    Serial.print(h);
+    Serial.print(" %\t");
+    Serial.print("Temperatura: ");
+    Serial.print(t);
+    Serial.print(" *C ");
+    Serial.print(f);
+    Serial.print(" *F\t");
+    Serial.print("Índice de calor: ");
+    Serial.print(hic);
+    Serial.print(" *C ");
+    Serial.print(hif);
+    Serial.println(" *F");
+    delay(3000);
+  } else {
+    Serial.print("No esta presionado \n");
+    delay(3000);
+  }
+}
